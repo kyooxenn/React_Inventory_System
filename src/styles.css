@@ -1,21 +1,28 @@
 .container {
     max-width: 600px;
-    margin: auto;
+    margin: 0 auto;
     text-align: center;
     background: url('../src/background.jpg') no-repeat center center fixed;
     background-size: cover;
     min-height: 100vh;
     padding: 20px;
+    box-sizing: border-box;
 }
 
 .search-section {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    justify-content: center;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .product-list {
+    display: -ms-grid;
     display: grid;
     gap: 15px;
 }
@@ -24,6 +31,7 @@
     background: #f4f4f4;
     padding: 15px;
     border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .loading {
@@ -37,14 +45,24 @@
 }
 
 .form {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
     gap: 10px;
 }
 
 .form-group {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
 }
 
 label {
@@ -55,6 +73,9 @@ label {
 input {
     padding: 8px;
     font-size: 16px;
+    -webkit-appearance: none; /* Removes native styles */
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 .product-table {
@@ -63,7 +84,8 @@ input {
     margin-top: 20px;
 }
 
-.product-table th, .product-table td {
+.product-table th,
+.product-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
@@ -78,36 +100,44 @@ input {
     background-color: #f2f2f2;
 }
 
-
 button {
     padding: 10px 20px;
     font-size: 14px;
     border: none;
     cursor: pointer;
-    width: 120px; /* Ensure equal width */
+    width: 120px;
     text-align: center;
-}
-
-.button-group {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-.search-btn, .add-btn, .edit-btn, .delete-btn, .return-btn {
-    background-color: #4CAF50;
-    color: white;
     border-radius: 5px;
 }
 
+.button-group {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    gap: 10px;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    flex-wrap: wrap;
+}
+
+.search-btn,
+.add-btn,
+.edit-btn,
+.delete-btn,
+.return-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
 .delete-btn {
-    background-color: #d9534f; /* Red for delete */
+    background-color: #d9534f;
 }
 
 .edit-btn {
-    background-color: #f0ad4e; /* Yellow for edit */
+    background-color: #f0ad4e;
 }
 
 .return-btn {
-    background-color: #337ab7; /* Blue for return */
+    background-color: #337ab7;
 }

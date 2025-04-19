@@ -88,12 +88,9 @@ const ProductList = () => {
                 <button className="search-btn" onClick={handleSearch} disabled={loading}>
                     {loading ? "Searching..." : "Search"}
                 </button>
-                   {/* Restore Add Button */}
-                {!searchInitiated && (
-                    <Link to="/add-product">
-                        <button className="add-btn">Add New Product</button>
-                    </Link>
-                )}
+                <Link to="/add-product">
+                    <button className="add-btn">Add New Product</button>
+                </Link>
             </div>
 
             {/* Loading & Error Messages */}
