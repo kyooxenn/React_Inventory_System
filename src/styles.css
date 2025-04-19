@@ -1,10 +1,14 @@
+body {
+    margin: 0;
+    background: url('../src/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+}
+
 .container {
     max-width: 600px;
     margin: 0 auto;
     text-align: center;
-    background: url('../src/background.jpg') no-repeat center center fixed;
-    background-size: cover;
-    min-height: 100vh;
     padding: 20px;
     box-sizing: border-box;
 }
