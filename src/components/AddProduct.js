@@ -11,49 +11,54 @@ const AddProduct = () => {
         quantity: 0,
         unitPrice: 0,
     });
-
+    const [loading, setLoading] = useState(false); // Track loading state
+    const [error, setError] = useState(""); // Track errors
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         setProduct({ ...product, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        await createProduct(product);
-        navigate("/"); // Redirect to product list
-    };
+   const handleSubmit = async (e) => {
+       e.preventDefault();
+       setError(""); // Reset error state
+       setLoading(true); // Show loading state
+
+       try {
+           await createProduct(product);
+           navigate("/"); // Redirect to product list after successful creation
+       } catch (err) {
+           if (err.response?.data?.details) {
+               setError(err.response.data.details.join(", ")); // Show validation errors from backend
+           } else {
+               setError(err.response?.data?.errorMessage || "Failed to add product.");
+           }
+       }
+
+       setLoading(false); // Hide loading state
+   };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "auto" }}>
+        <div className="container">
             <h2>Add New Product</h2>
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <label htmlFor="productName">Product Name</label>
-                    <input id="productName" type="text" name="productName" value={product.productName} onChange={handleChange} required />
-                </div>
+            <form onSubmit={handleSubmit} className="form">
+                {[
+                    { label: "Product Name", name: "productName", type: "text" },
+                    { label: "Description", name: "description", type: "text" },
+                    { label: "Product Type", name: "productType", type: "text" },
+                    { label: "Quantity", name: "quantity", type: "number" },
+                    { label: "Unit Price", name: "unitPrice", type: "number" }
+                ].map(({ label, name, type }) => (
+                    <div className="form-group" key={name}>
+                        <label htmlFor={name}>{label}</label>
+                        <input id={name} type={type} name={name} value={product[name] || ""} onChange={handleChange} required />
+                    </div>
+                ))}
 
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <label htmlFor="description">Description</label>
-                    <input id="description" type="text" name="description" value={product.description} onChange={handleChange} required />
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <label htmlFor="productType">Product Type</label>
-                    <input id="productType" type="text" name="productType" value={product.productType} onChange={handleChange} required />
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <label htmlFor="quantity">Quantity</label>
-                    <input id="quantity" type="number" name="quantity" value={product.quantity} onChange={handleChange} required />
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <label htmlFor="unitPrice">Unit Price</label>
-                    <input id="unitPrice" type="number" name="unitPrice" value={product.unitPrice} onChange={handleChange} required />
-                </div>
-
-                <button className="add-btn" type="submit">Save Product</button>
+                {error && <p className="error">{error}</p>} {/* Display error */}
+                <button className="add-btn" type="submit" disabled={loading}>
+                    {loading ? "Saving..." : "Save Product"}
+                </button>
             </form>
         </div>
     );

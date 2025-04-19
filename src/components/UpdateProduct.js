@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getProduct, updateProduct, deleteProduct } from "../api"; // Import deleteProduct
+import { getProduct, updateProduct, deleteProduct } from "../api";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles.css";
 
@@ -13,16 +13,17 @@ const UpdateProduct = () => {
         quantity: 0,
         unitPrice: 0,
     });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false); // Track loading state
+    const [error, setError] = useState(""); // Track error messages
 
     useEffect(() => {
         const fetchProduct = async () => {
+            setLoading(true);
             try {
                 const data = await getProduct(id);
                 setProduct(data);
-            } catch {
-                setError("Product not found.");
+            } catch (err) {
+                setError(err.response?.data?.message || "Product not found.");
             }
             setLoading(false);
         };
@@ -37,33 +38,38 @@ const UpdateProduct = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError(""); // Reset previous errors
+
         try {
             await updateProduct(id, product);
             navigate("/"); // Redirect after updating
-        } catch {
-            setError("Failed to update product.");
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to update product.");
         }
+
         setLoading(false);
     };
 
-    // Function to handle deletion and redirect
     const handleDelete = async () => {
         setLoading(true);
+        setError("");
+
         try {
             await deleteProduct(id);
-            navigate("/"); // Redirect to product list after deletion
-        } catch {
-            setError("Failed to delete product.");
+            navigate("/"); // Redirect after deletion
+        } catch (err) {
+            setError(err.response?.data?.message || "Failed to delete product.");
         }
+
         setLoading(false);
     };
-
-    if (loading) return <p className="loading">Loading...</p>;
-    if (error) return <p className="error">{error}</p>;
 
     return (
         <div className="container">
             <h2>Update Product</h2>
+            {loading && <p className="loading">Loading...</p>}
+            {error && <p className="error">{error}</p>}
+
             <form onSubmit={handleSubmit} className="form">
                 {[
                     { label: "Product Name", name: "productName", type: "text" },
@@ -79,8 +85,12 @@ const UpdateProduct = () => {
                 ))}
 
                 <div className="button-group">
-                    <button type="submit" className="edit-btn" disabled={loading}>Update Product</button>
-                    <button type="button" className="delete-btn" onClick={handleDelete} disabled={loading}>Delete Product</button>
+                    <button type="submit" className="edit-btn" disabled={loading}>
+                        {loading ? "Updating..." : "Update Product"}
+                    </button>
+                    <button type="button" className="delete-btn" onClick={handleDelete} disabled={loading}>
+                        {loading ? "Deleting..." : "Delete Product"}
+                    </button>
                 </div>
             </form>
         </div>

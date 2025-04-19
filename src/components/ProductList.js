@@ -11,82 +11,97 @@ const ProductList = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        getAllProducts()
-            .then(setProducts)
-            .catch(() => setError("Failed to load products."));
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                const allProducts = await getAllProducts();
+                setProducts(allProducts);
+            } catch (err) {
+                setError("Failed to load products.");
+            }
+            setLoading(false);
+        };
+
+        fetchProducts();
     }, []);
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         setLoading(true);
         setSearchedProduct(null);
         setError("");
 
-        setTimeout(async () => {
-            try {
-                if (!searchId.trim()) {
-                    const allProducts = await getAllProducts();
-                    setProducts(allProducts);
-                    setError("");
-                } else {
-                    const product = await getProduct(searchId);
-                    setSearchedProduct(product);
-                    setError("");
-                }
-            } catch {
-                setError("Product not found.");
-                setSearchedProduct(null);
+        try {
+            if (!searchId.trim()) {
+                const allProducts = await getAllProducts();
+                setProducts(allProducts);
+                setError("");
+            } else {
+                const product = await getProduct(searchId);
+                setSearchedProduct(product);
+                setError("");
             }
+        } catch (err) {
+            setError("Product not found.");
+            setSearchedProduct(null);
+        }
 
-            setLoading(false);
-        }, 1000);
+        setLoading(false);
     };
 
     const handleDelete = async (id) => {
         setLoading(true);
-        await deleteProduct(id);
-        const updatedProducts = await getAllProducts(); // Fetch updated product list
-        setProducts(updatedProducts); // Refresh the product list
-        setSearchedProduct(null); // Clear the searched product after deletion
-        setSearchId(""); // Reset search input to ensure list appears
+
+        try {
+            await deleteProduct(id);
+            const updatedProducts = await getAllProducts(); // Refresh product list
+            setProducts(updatedProducts);
+            setSearchedProduct(null);
+            setSearchId(""); // Reset search input
+        } catch (err) {
+            setError("Failed to delete product.");
+        }
+
         setLoading(false);
     };
 
     return (
-        <div>
-            <h2>Product List</h2>
+        <div className="container">
+            <h2>Simple Inventory Management System</h2>
 
             {/* Search Box */}
-            <div>
+            <div className="search-section">
                 <input
                     type="text"
-                    placeholder="Enter Product ID"
+                    placeholder="Enter Product Name"
                     value={searchId}
                     onChange={(e) => setSearchId(e.target.value)}
                 />
-                <button className="search-btn" onClick={handleSearch}>Search</button>
+                <button className="search-btn" onClick={handleSearch} disabled={loading}>
+                    {loading ? "Searching..." : "Search"}
+                </button>
             </div>
 
-            {/* Show loading effect */}
-            {loading && <p>Loading...</p>}
+            {/* Loading & Error Messages */}
+            {loading && <p className="loading">Loading...</p>}
+            {error && <p className="error">{error}</p>}
 
-            {/* Show error message when product is not found */}
-            {error && <p style={{ color: "red" }}>{error}</p>}
-
-            {/* Display Only the Searched Product If Found */}
+            {/* Display Searched Product */}
             {searchedProduct ? (
-                <div>
-                    <h3>Product Details</h3>
-                    <p><strong>Name:</strong> {searchedProduct.productName}</p>
+                <div className="product-card">
+                    <h3>{searchedProduct.productName}</h3>
                     <p><strong>Description:</strong> {searchedProduct.description}</p>
                     <p><strong>Type:</strong> {searchedProduct.productType}</p>
                     <p><strong>Quantity:</strong> {searchedProduct.quantity}</p>
-                    <p><strong>Price:</strong> ${searchedProduct.unitPrice}</p>
+                    <p><strong>Price:</strong> {searchedProduct.unitPrice} PHP</p>
                     <hr />
-                     {/* Edit and Delete Buttons */}
-                     <Link to={`/update-product/${searchedProduct.id}`}>
-                         <button className="edit-btn">Edit</button>
-                     </Link>
-                     <button className="delete-btn" onClick={() => handleDelete(searchedProduct.id)}>Delete</button>
+                    <div className="button-group">
+                        <Link to={`/update-product/${searchedProduct.id}`}>
+                            <button className="edit-btn">Edit</button>
+                        </Link>
+                        <button className="delete-btn" onClick={() => handleDelete(searchedProduct.id)} disabled={loading}>
+                            {loading ? "Deleting..." : "Delete"}
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <>
@@ -94,26 +109,28 @@ const ProductList = () => {
                         <button className="add-btn">Add New Product</button>
                     </Link>
 
-                    {/* Show Product List Only If No Search Result */}
+                    {/* Display Product List */}
                     {products.length > 0 ? (
-                        <ul>
+                        <div className="product-list">
                             {products.map((product) => (
-                                <li key={product.id}>
-                                    <strong>{product.productName}</strong> <br />
-                                    Description: {product.description} <br />
-                                    Product Type: {product.productType} <br />
-                                    Quantity: {product.quantity} <br />
-                                    Price: {product.unitPrice}PHP <br />
-
-                                   {/* Edit and Delete Buttons */}
-                                   <Link to={`/update-product/${product.id}`}>
-                                       <button className="edit-btn">Edit</button>
-                                   </Link>
-                                   <button className="delete-btn" onClick={() => handleDelete(product.id)}>Delete</button>
+                                <div key={product.id} className="product-card">
+                                    <h3>{product.productName}</h3>
+                                    <p><strong>Description:</strong> {product.description}</p>
+                                    <p><strong>Type:</strong> {product.productType}</p>
+                                    <p><strong>Quantity:</strong> {product.quantity}</p>
+                                    <p><strong>Price:</strong> {product.unitPrice} PHP</p>
                                     <hr />
-                                </li>
+                                    <div className="button-group">
+                                        <Link to={`/update-product/${product.id}`}>
+                                            <button className="edit-btn">Edit</button>
+                                        </Link>
+                                        <button className="delete-btn" onClick={() => handleDelete(product.id)} disabled={loading}>
+                                            {loading ? "Deleting..." : "Delete"}
+                                        </button>
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     ) : (
                         <p>No products available.</p>
                     )}
