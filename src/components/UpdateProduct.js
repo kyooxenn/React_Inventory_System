@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { getProduct, updateProduct, deleteProduct } from "../api";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation  } from "react-router-dom";
 import "../styles.css";
 
 const UpdateProduct = () => {
+    const location = useLocation();
+    const { productName } = location.state || {}; // Get product name from React Router state
     const { id } = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState({
@@ -20,7 +22,7 @@ const UpdateProduct = () => {
         const fetchProduct = async () => {
             setLoading(true);
             try {
-                const data = await getProduct(id);
+                const data = await getProduct(productName);
                 setProduct(data);
             } catch (err) {
                 setError(err.response?.data?.message || "Product not found.");

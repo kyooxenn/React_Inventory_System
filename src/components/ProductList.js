@@ -95,7 +95,7 @@ const ProductList = () => {
                     <p><strong>Price:</strong> {searchedProduct.unitPrice} PHP</p>
                     <hr />
                     <div className="button-group">
-                        <Link to={`/update-product/${searchedProduct.id}`}>
+                        <Link to={`/update-product/${searchedProduct.id}`} state={{ productName: searchedProduct.productName }}>
                             <button className="edit-btn">Edit</button>
                         </Link>
                         <button className="delete-btn" onClick={() => handleDelete(searchedProduct.id)} disabled={loading}>
@@ -121,9 +121,9 @@ const ProductList = () => {
                                     <p><strong>Price:</strong> {product.unitPrice} PHP</p>
                                     <hr />
                                     <div className="button-group">
-                                        <Link to={`/update-product/${product.id}`}>
-                                            <button className="edit-btn">Edit</button>
-                                        </Link>
+                                       <Link to={`/update-product/${product.id}`} state={{ productName: product.productName }}>
+                                           <button className="edit-btn">Edit</button>
+                                       </Link>
                                         <button className="delete-btn" onClick={() => handleDelete(product.id)} disabled={loading}>
                                             {loading ? "Deleting..." : "Delete"}
                                         </button>
