@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8080/v1/product";
+//const API_BASE_URL = "http://localhost:8080/v1/product";
+
+//deploy online render
+const API_BASE_URL = "https://inventory-system-dair.onrender.com/v1/product";
 
 export const getAllProducts = async () => {
     const response = await axios.get(API_BASE_URL);
