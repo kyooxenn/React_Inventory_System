@@ -19,24 +19,24 @@ const AddProduct = () => {
         setProduct({ ...product, [e.target.name]: e.target.value });
     };
 
-   const handleSubmit = async (e) => {
-       e.preventDefault();
-       setError(""); // Reset error state
-       setLoading(true); // Show loading state
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(""); // Reset error state
+        setLoading(true); // Show loading state
 
-       try {
-           await createProduct(product);
-           navigate("/"); // Redirect to product list after successful creation
-       } catch (err) {
-           if (err.response?.data?.details) {
-               setError(err.response.data.details.join(", ")); // Show validation errors from backend
-           } else {
-               setError(err.response?.data?.errorMessage || "Failed to add product.");
-           }
-       }
+        try {
+            await createProduct(product);
+            navigate("/"); // Redirect to product list after successful creation
+        } catch (err) {
+            if (err.response?.data?.details) {
+                setError(err.response.data.details.join(", ")); // Show validation errors from backend
+            } else {
+                setError(err.response?.data?.errorMessage || "Failed to add product.");
+            }
+        }
 
-       setLoading(false); // Hide loading state
-   };
+        setLoading(false); // Hide loading state
+    };
 
     return (
         <div className="container">
@@ -56,9 +56,15 @@ const AddProduct = () => {
                 ))}
 
                 {error && <p className="error">{error}</p>} {/* Display error */}
-                <button className="add-btn" type="submit" disabled={loading}>
-                    {loading ? "Saving..." : "Save Product"}
-                </button>
+
+                <div className="button-group">
+                    <button className="add-btn" type="submit" disabled={loading}>
+                        {loading ? "Saving..." : "Save Product"}
+                    </button>
+                    <button className="return-btn" type="button" onClick={() => navigate("/")}>
+                        Return to List
+                    </button>
+                </div>
             </form>
         </div>
     );

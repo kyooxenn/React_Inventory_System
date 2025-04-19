@@ -26,11 +26,6 @@
     border-radius: 5px;
 }
 
-.button-group {
-    display: flex;
-    gap: 10px;
-}
-
 .loading {
     color: blue;
     font-weight: bold;
@@ -39,43 +34,6 @@
 .error {
     color: red;
     font-weight: bold;
-}
-
-.add-btn {
-    background-color: green;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-}
-
-.search-btn {
-    background-color: blue;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.edit-btn {
-    background-color: orange;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-}
-
-.delete-btn {
-    background-color: red;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-}
-
-.add-btn {
-    background-color: green;
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
 }
 
 .form {
@@ -97,4 +55,59 @@ label {
 input {
     padding: 8px;
     font-size: 16px;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.product-table th, .product-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.product-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.product-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    width: 120px; /* Ensure equal width */
+    text-align: center;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.search-btn, .add-btn, .edit-btn, .delete-btn, .return-btn {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+}
+
+.delete-btn {
+    background-color: #d9534f; /* Red for delete */
+}
+
+.edit-btn {
+    background-color: #f0ad4e; /* Yellow for edit */
+}
+
+.return-btn {
+    background-color: #337ab7; /* Blue for return */
 }

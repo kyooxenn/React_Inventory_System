@@ -6,16 +6,21 @@ import "../styles.css";
 const ProductList = () => {
     const [products, setProducts] = useState([]);
     const [searchId, setSearchId] = useState("");
-    const [searchedProduct, setSearchedProduct] = useState(null);
+    const [searchedProducts, setSearchedProducts] = useState([]); // Holds multiple search results
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [searchInitiated, setSearchInitiated] = useState(false); // Tracks whether search has been performed
 
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
                 const allProducts = await getAllProducts();
-                setProducts(allProducts);
+                if (allProducts.length > 0) {
+                    setProducts(allProducts);
+                } else {
+                    setProducts([]); // Ensures no products are displayed when empty
+                }
             } catch (err) {
                 setError("Failed to load products.");
             }
@@ -27,22 +32,22 @@ const ProductList = () => {
 
     const handleSearch = async () => {
         setLoading(true);
-        setSearchedProduct(null);
+        setSearchInitiated(true); // Mark that search has started
+        setSearchedProducts([]);
         setError("");
 
         try {
             if (!searchId.trim()) {
+                // When search input is empty, return all products
                 const allProducts = await getAllProducts();
-                setProducts(allProducts);
-                setError("");
+                setSearchedProducts(allProducts);
             } else {
-                const product = await getProduct(searchId);
-                setSearchedProduct(product);
-                setError("");
+                const products = await getProduct(searchId); // Now returning a list
+                setSearchedProducts(products.length > 0 ? products : []);
             }
         } catch (err) {
-            setError("Product not found.");
-            setSearchedProduct(null);
+            setError("No matching products found.");
+            setSearchedProducts([]);
         }
 
         setLoading(false);
@@ -53,9 +58,13 @@ const ProductList = () => {
 
         try {
             await deleteProduct(id);
-            const updatedProducts = await getAllProducts(); // Refresh product list
-            setProducts(updatedProducts);
-            setSearchedProduct(null);
+            const updatedProducts = await getAllProducts();
+            if (updatedProducts.length > 0) {
+                setProducts(updatedProducts);
+            } else {
+                setProducts([]);
+            }
+            setSearchedProducts([]);
             setSearchId(""); // Reset search input
         } catch (err) {
             setError("Failed to delete product.");
@@ -79,61 +88,59 @@ const ProductList = () => {
                 <button className="search-btn" onClick={handleSearch} disabled={loading}>
                     {loading ? "Searching..." : "Search"}
                 </button>
+                   {/* Restore Add Button */}
+                {!searchInitiated && (
+                    <Link to="/add-product">
+                        <button className="add-btn">Add New Product</button>
+                    </Link>
+                )}
             </div>
 
             {/* Loading & Error Messages */}
             {loading && <p className="loading">Loading...</p>}
             {error && <p className="error">{error}</p>}
 
-            {/* Display Searched Product */}
-            {searchedProduct ? (
-                <div className="product-card">
-                    <h3>{searchedProduct.productName}</h3>
-                    <p><strong>Description:</strong> {searchedProduct.description}</p>
-                    <p><strong>Type:</strong> {searchedProduct.productType}</p>
-                    <p><strong>Quantity:</strong> {searchedProduct.quantity}</p>
-                    <p><strong>Price:</strong> {searchedProduct.unitPrice} PHP</p>
-                    <hr />
-                    <div className="button-group">
-                        <Link to={`/update-product/${searchedProduct.id}`} state={{ productName: searchedProduct.productName }}>
-                            <button className="edit-btn">Edit</button>
-                        </Link>
-                        <button className="delete-btn" onClick={() => handleDelete(searchedProduct.id)} disabled={loading}>
-                            {loading ? "Deleting..." : "Delete"}
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <>
-                    <Link to="/add-product">
-                        <button className="add-btn">Add New Product</button>
-                    </Link>
+            {/* Product Table Display */}
+            <table className="product-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {(searchInitiated ? searchedProducts : products).map((product) => (
+                        <tr key={product.id}>
+                            <td>{product.productName}</td>
+                            <td>{product.description}</td>
+                            <td>{product.productType}</td>
+                            <td>{product.quantity}</td>
+                            <td>{product.unitPrice} PHP</td>
+                            <td>
+                                <Link to={`/update-product/${product.id}`} state={{ productName: product.productName }}>
+                                    <button className="edit-btn">Edit</button>
+                                </Link>
+                                <button className="delete-btn" onClick={() => handleDelete(product.id)} disabled={loading}>
+                                    {loading ? "Deleting..." : "Delete"}
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
 
-                    {/* Display Product List */}
-                    {products.length > 0 ? (
-                        <div className="product-list">
-                            {products.map((product) => (
-                                <div key={product.id} className="product-card">
-                                    <h3>{product.productName}</h3>
-                                    <p><strong>Description:</strong> {product.description}</p>
-                                    <p><strong>Type:</strong> {product.productType}</p>
-                                    <p><strong>Quantity:</strong> {product.quantity}</p>
-                                    <p><strong>Price:</strong> {product.unitPrice} PHP</p>
-                                    <hr />
-                                    <div className="button-group">
-                                       <Link to={`/update-product/${product.id}`} state={{ productName: product.productName }}>
-                                           <button className="edit-btn">Edit</button>
-                                       </Link>
-                                        <button className="delete-btn" onClick={() => handleDelete(product.id)} disabled={loading}>
-                                            {loading ? "Deleting..." : "Delete"}
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No products available.</p>
-                    )}
+            {/* Return to List Button */}
+            {searchInitiated && searchedProducts.length === 0 && (
+                <>
+                    <p>No matching products found.</p>
+                    <button className="return-btn" onClick={() => {
+                        setSearchInitiated(false);
+                        setSearchId("");
+                    }}>Return to List</button>
                 </>
             )}
         </div>
