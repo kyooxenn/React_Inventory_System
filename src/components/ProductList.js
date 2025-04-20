@@ -77,7 +77,13 @@ const ProductList = () => {
                 </Link>
             </div>
 
-            {loading && <p className="loading">Loading...</p>}
+           {loading && (
+               <div className="loading-container">
+                   <div className="loading-spinner"></div>
+                   <p>Loading...</p>
+               </div>
+           )}
+
             {error && <p className="error">{error}</p>}
 
             <table className="product-table">
@@ -115,7 +121,10 @@ const ProductList = () => {
             {filteredProducts.length === 0 && searchQuery && (
                 <>
                     <p>No matching products found.</p>
-                    <button className="return-btn" onClick={() => setSearchQuery("")}>
+                    <button className="return-btn" onClick={() => {
+                        setSearchQuery("");
+                        setFilteredProducts(products); // Ensures all products are displayed again
+                    }}>
                         Reset Search
                     </button>
                 </>

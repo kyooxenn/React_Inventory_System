@@ -1,0 +1,17 @@
+.background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* Ensures the video scales properly */
+    z-index: -1; /* Sends video behind content */
+}
+
+.content {
+    position: relative;
+    z-index: 1;
+    color: white; /* Make text visible on top of the video */
+    text-align: center;
+    padding-top: 40vh; /* Center content vertically */
+}
