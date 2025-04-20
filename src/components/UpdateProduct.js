@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { getProductById, updateProduct, deleteProduct } from "../api";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../styles.css";
+
+const productTypeMapping = {
+    1: "Electronics",
+    2: "Furniture",
+    3: "Clothing",
+    4: "Food",
+    5: "Books",
+};
+
+const productTypes = Object.values(productTypeMapping); // Extract type names
 
 const UpdateProduct = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [product, setProduct] = useState(null); // Store one product, not an array
+    const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -14,10 +24,12 @@ const UpdateProduct = () => {
         const fetchProduct = async () => {
             setLoading(true);
             try {
-                const data = await getProductById(id); // Should return a single product object
+                const data = await getProductById(id);
+                // Convert productType from number to its name before storing
+                data.productType = productTypeMapping[data.productType] || data.productType;
                 setProduct(data);
             } catch (err) {
-                setError(err.response?.data?.message || "No matching product found.");
+                setError("No matching product found.");
             }
             setLoading(false);
         };
@@ -26,38 +38,47 @@ const UpdateProduct = () => {
     }, [id]);
 
     const handleChange = (e) => {
-        setProduct({
-            ...product,
-            [e.target.name]: e.target.value,
-        });
+        const { name, value } = e.target;
+        setProduct((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const validateFields = () => {
+        if (!product.productName.trim()) return "Product name is required.";
+        if (!productTypes.includes(product.productType)) return "Please select a valid product type.";
+        if (!product.description.trim()) return "Description is required.";
+        if (isNaN(product.quantity) || product.quantity <= 0) return "Quantity must be a positive number.";
+        if (isNaN(product.unitPrice) || product.unitPrice <= 0) return "Unit price must be a positive number.";
+        return "";
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError("");
 
-        try {
-            await updateProduct(id, product);
-            navigate("/"); // Redirect after updating
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to update product.");
+        const validationError = validateFields();
+        if (validationError) {
+            setError(validationError);
+            return;
         }
 
+        setLoading(true);
+        try {
+            await updateProduct(id, product);
+            navigate("/");
+        } catch (err) {
+            setError("Failed to update product.");
+        }
         setLoading(false);
     };
 
     const handleDelete = async () => {
         setLoading(true);
-        setError("");
-
         try {
             await deleteProduct(id);
-            navigate("/"); // Redirect after deletion
+            navigate("/");
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to delete product.");
+            setError("Failed to delete product.");
         }
-
         setLoading(false);
     };
 
@@ -69,23 +90,33 @@ const UpdateProduct = () => {
 
             {product ? (
                 <form onSubmit={handleSubmit} className="form">
-                    {[
-                        { label: "Product Name", name: "productName", type: "text" },
-                        { label: "Description", name: "description", type: "text" },
-                        { label: "Product Type", name: "productType", type: "text" },
-                        { label: "Quantity", name: "quantity", type: "number" },
-                        { label: "Price", name: "unitPrice", type: "number" },
-                    ].map(({ label, name, type }) => (
+                    {/* Product Name */}
+                    <div className="form-group">
+                        <label htmlFor="productName">Product Name</label>
+                        <input id="productName" type="text" name="productName" value={product.productName} onChange={handleChange} required />
+                    </div>
+
+                    {/* Product Type Dropdown */}
+                    <div className="form-group">
+                        <label htmlFor="productType">Product Type</label>
+                        <select id="productType" name="productType" value={product.productType || ""} onChange={handleChange} required>
+                            <option value="">Select Product Type</option>
+                            {productTypes.map((type) => (
+                                <option key={type} value={type}>
+                                    {type}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Remaining Fields */}
+                    {[{ label: "Description", name: "description", type: "text" },
+                      { label: "Quantity", name: "quantity", type: "number" },
+                      { label: "Price", name: "unitPrice", type: "number" }]
+                    .map(({ label, name, type }) => (
                         <div className="form-group" key={name}>
                             <label htmlFor={name}>{label}</label>
-                            <input
-                                id={name}
-                                type={type}
-                                name={name}
-                                value={product[name] || ""}
-                                onChange={handleChange}
-                                required
-                            />
+                            <input id={name} type={type} name={name} value={product[name] || ""} onChange={handleChange} required />
                         </div>
                     ))}
 

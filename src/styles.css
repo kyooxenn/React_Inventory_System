@@ -145,3 +145,13 @@ button {
 .return-btn {
     background-color: #337ab7;
 }
+
+select {
+    padding: 8px;
+    font-size: 16px;
+    -webkit-appearance: none; /* Removes native styles */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white; /* Matches input field background */
+    width: 100%; /* Ensures uniform width */
+}
